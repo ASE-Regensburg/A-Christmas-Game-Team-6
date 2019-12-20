@@ -7,6 +7,7 @@ import game.background.BackgroundObjects;
 import player.Player;
 import scenes.Scene;
 import scenes.SceneListener;
+import score.Scoreboard;
 import snowballs.SnowballDispenser;
 import snowballs.SnowballListener;
 import snowballs.SnowballSpeed;
@@ -17,23 +18,26 @@ public class GameScene extends Scene implements GameConfig, Assets, SnowballList
     private BackgroundObjects backgroundObjects;
     private Player player;
     private SnowballDispenser snowballDispenser;
+    private Scoreboard scoreboard;
+    private int score;
 
     public GameScene(String tag, SceneListener listener) {
         super(tag, BACKGROUND_IMAGE_PATH, listener);
         initBackground();
         initPlayer();
         initSnowballs();
+        initScoreboard();
     }
 
     private void initBackground() {
-        backgroundObjects = new BackgroundObjects(0,0);
+        backgroundObjects = new BackgroundObjects(0, 0);
     }
 
     private void initPlayer() {
         SpriteSet[] sprites = new SpriteSet[2];
         sprites[0] = SpriteSet.createSet("running", PLAYER_SPRITES_RUNNING, PLAYER_ANIMATION_SPEED);
         sprites[1] = SpriteSet.createSet("jumping", PLAYER_SPRITES_JUMPING, PLAYER_ANIMATION_SPEED);
-        player = new Player(GameConfig.PLAYER_START_POSITION_X,GameConfig.PLAYER_START_POSITION_Y, sprites);
+        player = new Player(GameConfig.PLAYER_START_POSITION_X, GameConfig.PLAYER_START_POSITION_Y, sprites);
     }
 
     private void initSnowballs() {
@@ -41,6 +45,12 @@ public class GameScene extends Scene implements GameConfig, Assets, SnowballList
         snowballDispenser.setSnowballListener(this);
         snowballDispenser.setSpeed(SnowballSpeed.SLOW);
         snowballDispenser.setTarget(player);
+    }
+
+    private void initScoreboard() {
+        score = 0;
+        scoreboard = new Scoreboard(GameConfig.SCOREBOARD_POSITION_X, GameConfig.SCOREBOARD_POSITION_Y);
+        scoreboard.setScore(score);
     }
 
     public void update() {
@@ -54,21 +64,24 @@ public class GameScene extends Scene implements GameConfig, Assets, SnowballList
         backgroundObjects.draw();
         player.draw();
         snowballDispenser.draw();
+        scoreboard.draw();
     }
 
     public void onKeyPressed(KeyPressedEvent event) {
-        if(event.getKeyCode() == KeyPressedEvent.VK_SPACE) {
+        if (event.getKeyCode() == KeyPressedEvent.VK_SPACE) {
             player.jump();
         }
     }
 
     @Override
     public void onSnowballHitPlayer() {
-        System.out.println("Player hit by snowball");
+        score = 0;
+        scoreboard.setScore(score);
     }
 
     @Override
     public void onSnowballLeftScreen() {
-        System.out.println("Player passed snowball");
+        score++;
+        scoreboard.setScore(score);
     }
 }
