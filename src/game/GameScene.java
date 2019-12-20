@@ -7,17 +7,22 @@ import game.background.BackgroundObjects;
 import player.Player;
 import scenes.Scene;
 import scenes.SceneListener;
+import snowballs.SnowballDispenser;
+import snowballs.SnowballListener;
+import snowballs.SnowballSpeed;
 import sprites.SpriteSet;
 
-public class GameScene extends Scene implements GameConfig, Assets {
+public class GameScene extends Scene implements GameConfig, Assets, SnowballListener {
 
     private BackgroundObjects backgroundObjects;
     private Player player;
+    private SnowballDispenser snowballDispenser;
 
     public GameScene(String tag, SceneListener listener) {
         super(tag, BACKGROUND_IMAGE_PATH, listener);
         initBackground();
         initPlayer();
+        initSnowballs();
     }
 
     private void initBackground() {
@@ -31,15 +36,24 @@ public class GameScene extends Scene implements GameConfig, Assets {
         player = new Player(GameConfig.PLAYER_START_POSITION_X,GameConfig.PLAYER_START_POSITION_Y, sprites);
     }
 
+    private void initSnowballs() {
+        snowballDispenser = new SnowballDispenser(MAX_SNOWBALLS, SNOWBALL_SPAWN_DELAY);
+        snowballDispenser.setSnowballListener(this);
+        snowballDispenser.setSpeed(SnowballSpeed.SLOW);
+        snowballDispenser.setTarget(player);
+    }
+
     public void update() {
         backgroundObjects.update();
         player.update();
+        snowballDispenser.update();
     }
 
     public void draw() {
         super.draw();
         backgroundObjects.draw();
         player.draw();
+        snowballDispenser.draw();
     }
 
     public void onKeyPressed(KeyPressedEvent event) {
@@ -48,4 +62,13 @@ public class GameScene extends Scene implements GameConfig, Assets {
         }
     }
 
+    @Override
+    public void onSnowballHitPlayer() {
+        System.out.println("Player hit by snowball");
+    }
+
+    @Override
+    public void onSnowballLeftScreen() {
+        System.out.println("Player passed snowball");
+    }
 }
